@@ -1,0 +1,12 @@
+{
+  "clients": [
+    {"name": "青禾设计", "contact": "王工 wechat: qinghe", "avg_delay_days": 21},
+    {"name": "北岸书店", "contact": "李姐 13800000001", "avg_delay_days": 3},
+    {"name": "远山科技", "contact": "财务 0755-88880000", "avg_delay_days": null}
+  ],
+  "invoices": [
+    {"client": "青禾设计", "number": "INV-2026-011", "amount": 860000, "issued": "2026-09-20", "due": "2026-10-20"},
+    {"client": "北岸书店", "number": "INV-2026-014", "amount": 240000, "issued": "2026-10-25", "due": "2026-11-24"},
+    {"client": "远山科技", "number": "INV-2026-015", "amount": 1250000, "issued": "2026-10-01", "due": "2026-10-31"}
+  ]
+}

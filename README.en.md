@@ -33,4 +33,4 @@ It does not know how often this client paid late, which dunning stage applies, o
 
 ## Author
 
-shiyi · GitHub [@wushiyi105-jpg](https://github.com/wushiyi105-jpg) · wushiyi105@gmail.com
+Shiyi · GitHub [@wushiyi105-jpg](https://github.com/wushiyi105-jpg) · 18384198104

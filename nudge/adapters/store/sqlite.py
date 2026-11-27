@@ -6,19 +6,28 @@ import json
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+from alembic import command
+from alembic.config import Config
 from sqlalchemy import create_engine, select
 from sqlalchemy.orm import Session, sessionmaker
 
 from ...domain.models import Client, Invoice
-from .models import Base, ClientRow, InvoiceRow, JobRow, PaymentRow, RunRow
+from .models import ClientRow, InvoiceRow, JobRow, PaymentRow, RunRow
 
+
+def _upgrade_schema(engine) -> None:
+    root = next(p for p in Path(__file__).resolve().parents if (p / "alembic.ini").exists())
+    cfg = Config(str(root / "alembic.ini"))
+    cfg.set_main_option("script_location", str(root / "migrations"))
+    cfg.set_main_option("sqlalchemy.url", f"sqlite:///{engine.url.database}")
+    command.upgrade(cfg, "head")
 
 class SqliteStore:
     def __init__(self, db_path: Path) -> None:
         db_path.parent.mkdir(parents=True, exist_ok=True)
         self.engine = create_engine(f"sqlite:///{db_path}", future=True)
         self.session_factory = sessionmaker(self.engine, expire_on_commit=False)
-        Base.metadata.create_all(self.engine)
+        _upgrade_schema(self.engine)
 
     # ---------- 查询 ----------
     def list_clients(self) -> list[Client]:

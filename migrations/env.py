@@ -7,11 +7,12 @@ from logging.config import fileConfig
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
-from nudge.adapters.store.sqlite import Base
+from nudge.adapters.store.models import Base
 from nudge.config import settings
 
 config = context.config
-config.set_main_option("sqlalchemy.url", f"sqlite:///{settings.db_path}")
+if not config.get_main_option("sqlalchemy.url"):
+    config.set_main_option("sqlalchemy.url", f"sqlite:///{settings.db_path}")
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)

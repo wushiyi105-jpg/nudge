@@ -31,6 +31,9 @@ python -m nudge serve        # http://127.0.0.1:8000
 
 It does not know how often this client paid late, which dunning stage applies, or whether the amount in its own text matches the ledger. Nudge computes all three locally and only lets the model phrase the message.
 
+**Was the Docker image verified?**
+Docker is not installed on the build machine, so docker build . was not run and the image is unverified; only the Dockerfile and ports were checked statically.
+
 ## Author
 
 Shiyi · GitHub [@wushiyi105-jpg](https://github.com/wushiyi105-jpg) · 18384198104

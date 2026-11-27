@@ -22,6 +22,7 @@ def _upgrade_schema(engine) -> None:
     cfg.set_main_option("sqlalchemy.url", f"sqlite:///{engine.url.database}")
     command.upgrade(cfg, "head")
 
+
 class SqliteStore:
     def __init__(self, db_path: Path) -> None:
         db_path.parent.mkdir(parents=True, exist_ok=True)

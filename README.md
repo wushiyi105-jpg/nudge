@@ -83,6 +83,9 @@ cp .env.example .env
 **数据在哪？**
 本地 SQLite（`data/nudge.db`），不上传任何地方。
 
+**Docker 镜像验证了吗？**
+本机没有 Docker，`docker build .` 未执行，镜像未构建验证；Dockerfile 与端口只做了静态核对。
+
 ## 命令参考
 
 ```bash

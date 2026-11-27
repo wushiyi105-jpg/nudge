@@ -68,6 +68,23 @@ class SqliteStore:
                 for r in rows
             ]
 
+    def list_invoices(self) -> list[Invoice]:
+        """全部发票，包含已结清；回款率要按全部台账算。"""
+        with self.session_factory() as s:
+            rows = s.scalars(select(InvoiceRow)).all()
+            return [
+                Invoice(
+                    id=r.id,
+                    client_id=r.client_id,
+                    number=r.number,
+                    amount_cents=r.amount_cents,
+                    issued_on=r.issued_on,
+                    due_on=r.due_on,
+                    paid_cents=r.paid_cents,
+                )
+                for r in rows
+            ]
+
     def invoice(self, invoice_id: int) -> Invoice | None:
         with self.session_factory() as s:
             r = s.get(InvoiceRow, invoice_id)

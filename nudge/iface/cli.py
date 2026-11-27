@@ -13,6 +13,7 @@ from rich.table import Table
 from ..adapters.llm.openai_compat import OpenAICompatClient
 from ..adapters.notify.webhook import WebhookNotifier
 from ..adapters.store.sqlite import SqliteStore
+from ..app.collect import build_report as collect_report
 from ..app.jobs import process_jobs
 from ..app.scan import scan
 from ..config import settings as base_settings
@@ -39,13 +40,15 @@ def seed(db: Path = typer.Option(None, help="数据库路径")) -> None:
     data = json.loads(path.read_text(encoding="utf-8"))
     ids = {c["name"]: store.add_client(c["name"], c.get("contact", ""), c.get("avg_delay_days")) for c in data["clients"]}
     for inv in data["invoices"]:
-        store.add_invoice(
+        invoice_id = store.add_invoice(
             ids[inv["client"]],
             inv["number"],
             inv["amount"],
             date.fromisoformat(inv["issued"]),
             date.fromisoformat(inv["due"]),
         )
+        if inv.get("paid"):
+            store.record_payment(invoice_id, int(inv["paid"]), date.fromisoformat(inv["issued"]))
     console.print(f"[green]已写入[/] {len(ids)} 个客户、{len(data['invoices'])} 张发票")
 
 
@@ -119,6 +122,32 @@ def scan_cmd(
         console.print(f"\n[bold]{item.invoice.number}[/] → {item.message}")
         for f in item.rec.top_findings:
             console.print(f"  · [dim]{f.rule_id}[/] {f.message} ({f.score})")
+
+
+@app.command()
+def collect(
+    today: str = typer.Option("", help="核算日期 YYYY-MM-DD，默认今天"),
+    out: Path = typer.Option(None, help="输出 Markdown；不填打印到终端"),
+    use_llm: bool = typer.Option(False, "--llm", help="让模型改写首条文案；默认本地模板"),
+    db: Path = typer.Option(None, help="数据库路径"),
+) -> None:
+    """今日该催谁：优先级 + 每个客户三条可复制消息。"""
+    s = _settings(db)
+    store = SqliteStore(s.db_path)
+    day = date.fromisoformat(today) if today else date.today()
+    llm = None
+    if use_llm and s.llm_enabled:
+        llm = OpenAICompatClient(s.llm_base_url, s.llm_api_key, s.llm_model, s.llm_timeout)
+    result = scan(store, llm, s, day)
+    text = collect_report(store, result, store.list_clients(), day)
+    if out:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(text, encoding="utf-8")
+        console.print(f"[green]已写出[/] {out}（{len(result.items)} 个客户待催）")
+    else:
+        console.print(text)
+    if llm is None:
+        console.print("[dim]本次为本地模板：三档消息由 10 条话术库生成，未调用模型。[/]")
 
 
 @app.command()

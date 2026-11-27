@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import date, timedelta
+from typing import Any
 
 import pytest
 
@@ -11,7 +12,7 @@ TODAY = date(2026, 11, 27)
 
 
 def make_invoice(**kw) -> Invoice:
-    base = dict(
+    base: dict[str, Any] = dict(
         id=1,
         client_id=1,
         number="INV-1",

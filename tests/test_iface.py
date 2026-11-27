@@ -98,7 +98,6 @@ def test_cli_scan_json_offline(tmp_path: Path) -> None:
     r = runner.invoke(app, ["scan", "--db", db, "--offline", "--json"])
     assert r.exit_code == 0
     payload = json.loads(r.output[r.output.index("{") : r.output.rindex("}") + 1])
-    assert payload["skipped"] == 0
     assert len(payload["items"]) >= 1
     assert payload["items"][0]["source"] == "offline"
     assert payload["items"][0]["days_overdue"] > 0

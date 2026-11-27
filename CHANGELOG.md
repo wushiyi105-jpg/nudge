@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- 新增 `collect`：一条命令输出今日催款清单（Top5 + 每个客户三档消息 + 账龄分布 + 回款率）
+- 新增 10 条本地话术模板，三档语气不再依赖模型；`--llm` 才启用模型改写
+- 种子扩为 30 个客户、30 张发票，其中 7 张有回款；`list_invoices()` 含已结清，回款率按全台账算
 - `0001_init` 改为显式 `op.create_table` / `op.create_index`，运行期走 `alembic upgrade`
 - `app/` 只依赖 `ports`，新增内存假实现用例
 - 开 ruff `E2`/`E3`；CI 增加 `docker build` 与 `/health` 探活

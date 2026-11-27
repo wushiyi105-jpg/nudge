@@ -1,0 +1,14 @@
+{
+  "templates": [
+    {"id": "gentle-1", "stage": 1, "tone": "温和", "text": "{client}您好，{invoice}的 {amount} 元已在 {due} 到期，麻烦方便时确认一下付款安排，谢谢。"},
+    {"id": "gentle-2", "stage": 1, "tone": "温和", "text": "您好{client}，{invoice}这笔 {amount} 元到期 {days} 天了，我这边先做个提醒，您看本周哪天方便处理？"},
+    {"id": "gentle-3", "stage": 1, "tone": "温和", "text": "{client}，{invoice}（{amount} 元）已经到期，怕您忙忘了，特意提醒一下；如已付款请忽略。"},
+    {"id": "firm-1", "stage": 2, "tone": "明确", "text": "{client}您好，{invoice}的 {amount} 元已逾期 {days} 天，请在本周内确认具体付款日期，我好安排后续排期。"},
+    {"id": "firm-2", "stage": 2, "tone": "明确", "text": "{client}，{invoice}已逾期 {days} 天，未收 {amount} 元。请在周四前回复付款计划，避免影响后续合作。"},
+    {"id": "firm-3", "stage": 2, "tone": "明确", "text": "关于{invoice}，到期日 {due}，目前逾期 {days} 天、未收 {amount} 元。请今天给一个明确付款时间。"},
+    {"id": "final-1", "stage": 3, "tone": "最后", "text": "{client}，{invoice}的 {amount} 元已逾期 {days} 天。若本周五前仍未收到，我们将暂停后续排期并启动对账，请理解。"},
+    {"id": "final-2", "stage": 3, "tone": "最后", "text": "{client}，这是关于{invoice}的最后一次书面提醒：逾期 {days} 天，未收 {amount} 元。请今日回复付款凭证。"},
+    {"id": "final-3", "stage": 3, "tone": "最后", "text": "{invoice}（{amount} 元）逾期 {days} 天，已超过约定账期。请在本周内结清，否则我们将按合同暂停服务。"},
+    {"id": "final-4", "stage": 3, "tone": "最后", "text": "{client}，{invoice}到期 {due}，今天已逾期 {days} 天。请直接回复付款日期，不再接受口头承诺。"}
+  ]
+}

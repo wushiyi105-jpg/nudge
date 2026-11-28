@@ -38,7 +38,7 @@ def test_web_index_empty(tmp_path: Path) -> None:
     client = TestClient(create_app(make_settings(tmp_path)))
     body = client.get("/").text
     assert client.get("/").status_code == 200
-    assert "应收台账" in body
+    assert "今天先收回哪几笔" in body
     assert "0.00" in body
 
 

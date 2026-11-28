@@ -1,0 +1,29 @@
+:root {
+  --bg: #FBFAF7;
+  --bg-subtle: #F6F3EC;
+  --bg-muted: #EDE8DD;
+  --card: #FFFFFF;
+  --text: #17181A;
+  --text-2: #4d4a44;
+  --text-3: #6d695f;
+  --text-4: #716e64;
+  --border: #E7E2D6;
+  --border-2: #D9D3C4;
+  --border-3: #C6BEAB;
+  --accent: #A16207;
+  --accent-soft: #FBF1DC;
+  --accent-ink: #7A4A05;
+  --radius: 9px;
+  --radius-sm: 6px;
+  --radius-lg: 12px;
+}
+:root[data-theme="dark"] {
+  --accent: #E3B04B;
+  --accent-soft: #3A2A08;
+  --accent-ink: #F2CE86;
+}
+.page-head h1 { font-family: "Songti SC", "SimSun", serif; letter-spacing: 0; }
+.table th { letter-spacing: .12em; }
+.table td:first-child { font-family: var(--mono); font-size: 12px; letter-spacing: .02em; }
+.stat:first-child { border-left: 3px solid var(--accent); }
+

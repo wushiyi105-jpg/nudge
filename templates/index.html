@@ -1,6 +1,6 @@
 {% from "_macros.html" import shell, head, stats, card, tag, empty, note %}
-{% call shell("Nudge", "应收台账", true) %}
-{{ head("应收台账", "合计未收 ¥ " ~ "%.2f"|format(total) ~ " · 逾期越久越靠前") }}
+{% call shell("Nudge", "工作室回款台", true) %}
+{{ head("今天先收回哪几笔", "合计未收 ¥ " ~ "%.2f"|format(total) ~ " · 逾期越久越靠前") }}
 
 {{ stats([
   ("待收发票", rows|length, "张"),
@@ -8,6 +8,19 @@
   ("90 天以上", rows|selectattr("bucket", "equalto", "90+")|list|length, "张"),
   ("涉及客户", rows|map(attribute="client")|unique|list|length, "家")
 ]) }}
+
+{% if rows %}
+{% call card("今天优先跟进", "逾期最久的 5 笔") %}
+  <div class="stack">
+  {% for r in rows[:5] %}
+    <div class="list-row">
+      <span class="t"><span class="mono">{{ r.number }}</span> · {{ r.client }}</span>
+      <span class="row-end"><span class="mono-num">{{ "%.2f"|format(r.outstanding) }} 元</span>{{ tag(r.overdue ~ " 天", "bad" if r.overdue > 60 else "warn") }}</span>
+    </div>
+  {% endfor %}
+  </div>
+{% endcall %}
+{% endif %}
 
 {% call card("操作", "扫描后按账龄生成催收建议") %}
 {% if scanned %}{{ note("已扫描，生成 " ~ scanned ~ " 条催收建议。") }}{% endif %}

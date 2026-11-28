@@ -1,74 +1,54 @@
-<!doctype html>
-<html lang="zh-CN">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Nudge · 应收台账</title>
-<style>
-  :root{--bg:#0d1117;--card:#161b22;--line:#30363d;--ink:#e6edf3;--muted:#8b949e;--accent:#58a6ff;--warn:#d29922;--bad:#f85149}
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Microsoft YaHei",sans-serif;line-height:1.6}
-  .wrap{max-width:900px;margin:0 auto;padding:40px 20px 80px}
-  h1{font-size:26px;margin:0 0 4px}
-  .sub{color:var(--muted);font-size:14px;margin-bottom:24px}
-  .bar{display:flex;gap:12px;align-items:center;margin-bottom:20px}
-  form{display:inline}
-  button{background:var(--accent);color:#0d1117;border:none;border-radius:8px;padding:9px 16px;font-size:14px;font-weight:600;cursor:pointer}
-  button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:400}
-  table{width:100%;border-collapse:collapse;font-size:14px}
-  th{text-align:left;color:var(--muted);font-weight:500;font-size:12px;text-transform:uppercase;letter-spacing:.05em;padding:8px 10px;border-bottom:1px solid var(--line)}
-  td{padding:10px;border-bottom:1px solid #21262d}
-  .num{text-align:right;font-variant-numeric:tabular-nums}
-  .tag{font-size:12px;padding:2px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
-  .tag.over{color:var(--warn);border-color:#5c4a15}
-  .tag.bad{color:var(--bad);border-color:#5c1f1c}
-  .pay input{width:90px;background:#0d1117;border:1px solid var(--line);color:var(--ink);border-radius:6px;padding:5px 8px;font-size:13px}
-  .pay button{padding:5px 10px;font-size:12px}
-  .flash{background:#0f2f1b;border:1px solid #238636;color:#7ee787;padding:10px 14px;border-radius:8px;margin-bottom:16px;font-size:14px}
-  .empty{color:var(--muted);padding:40px 0;text-align:center}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <h1>Nudge</h1>
-  <div class="sub">应收台账 · 合计未收 {{ "%.2f"|format(total) }} 元</div>
+{% from "_macros.html" import shell, head, stats, card, tag, empty, note %}
+{% call shell("Nudge", "应收台账", true) %}
+{{ head("应收台账", "合计未收 ¥ " ~ "%.2f"|format(total) ~ " · 逾期越久越靠前") }}
 
-  {% if scanned %}
-  <div class="flash">已扫描，生成 {{ scanned }} 条催收建议</div>
-  {% endif %}
+{{ stats([
+  ("待收发票", rows|length, "张"),
+  ("合计未收", "%.2f"|format(total), "元"),
+  ("90 天以上", rows|selectattr("bucket", "equalto", "90+")|list|length, "张"),
+  ("涉及客户", rows|map(attribute="client")|unique|list|length, "家")
+]) }}
 
-  <div class="bar">
-    <form method="post" action="/scan"><button type="submit">扫描逾期</button></form>
-    <form method="post" action="/scan"><input type="hidden" name="offline" value="1"><button class="ghost" type="submit">离线扫描</button></form>
-  </div>
+{% call card("操作", "扫描后按账龄生成催收建议") %}
+{% if scanned %}{{ note("已扫描，生成 " ~ scanned ~ " 条催收建议。") }}{% endif %}
+<div class="form-actions">
+  <form method="post" action="/scan"><button class="btn btn--primary" type="submit">扫描逾期</button></form>
+  <form method="post" action="/scan">
+    <input type="hidden" name="offline" value="1">
+    <button class="btn btn--ghost" type="submit">离线扫描</button>
+  </form>
+</div>
+{% endcall %}
 
-  {% if rows %}
-  <table>
+{% call card("发票明细", rows|length ~ " 张") %}
+{% if rows %}
+<div class="table-wrap">
+  <table class="table">
     <thead>
-      <tr><th>发票</th><th>客户</th><th>到期</th><th>逾期</th><th class="num">未收</th><th>账龄</th><th>回款</th></tr>
+      <tr><th>发票</th><th>客户</th><th>到期</th><th>逾期</th><th class="num">未收</th><th>账龄</th><th class="num">回款</th></tr>
     </thead>
     <tbody>
       {% for r in rows %}
       <tr>
-        <td>{{ r.number }}</td>
+        <td class="strong">{{ r.number }}</td>
         <td>{{ r.client }}</td>
-        <td>{{ r.due }}</td>
+        <td class="muted">{{ r.due }}</td>
         <td>{{ r.overdue }} 天</td>
-        <td class="num">{{ "%.2f"|format(r.outstanding) }}</td>
-        <td><span class="tag {% if r.bucket == '90+' %}bad{% elif r.bucket != 'current' %}over{% endif %}">{{ r.bucket }}</span></td>
-        <td class="pay">
-          <form method="post" action="/pay/{{ r.id }}">
-            <input name="amount" placeholder="元" required>
-            <button type="submit">登记</button>
+        <td class="num strong">{{ "%.2f"|format(r.outstanding) }}</td>
+        <td>{{ tag(r.bucket, "bad" if r.bucket == "90+" else ("warn" if r.bucket != "current" else "ok")) }}</td>
+        <td>
+          <form class="inline-form" method="post" action="/pay/{{ r.id }}">
+            <input class="input" name="amount" placeholder="金额" required>
+            <button class="btn" type="submit">登记</button>
           </form>
         </td>
       </tr>
       {% endfor %}
     </tbody>
   </table>
-  {% else %}
-  <div class="empty">还没有发票。先跑 <code>python -m nudge seed</code> 写入示例数据。</div>
-  {% endif %}
 </div>
-</body>
-</html>
+{% else %}
+{{ empty("还没有发票", "先跑 python -m nudge seed 写入示例数据，再回来扫描。") }}
+{% endif %}
+{% endcall %}
+{% endcall %}

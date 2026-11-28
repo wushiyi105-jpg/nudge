@@ -8,6 +8,7 @@ from typing import Any
 
 from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
 from ..adapters.llm.openai_compat import OpenAICompatClient
@@ -20,6 +21,11 @@ TEMPLATES = Jinja2Templates(directory=str(Path(__file__).resolve().parents[2] / 
 
 def create_app(settings: Settings) -> FastAPI:
     app = FastAPI(title="Nudge", version="1.0.0")
+    app.mount(
+        "/static",
+        StaticFiles(directory=str(Path(__file__).resolve().parents[2] / "static")),
+        name="static",
+    )
     store = SqliteStore(settings.db_path)
 
     @app.get("/", response_class=HTMLResponse)
@@ -71,3 +77,4 @@ def app_factory() -> FastAPI:
     from ..config import settings
 
     return create_app(settings)
+
